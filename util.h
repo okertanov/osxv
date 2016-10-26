@@ -11,6 +11,8 @@
 
 #define DEBUG(S) do { std::cout << ">>>>> DEBUG: " << S << std::endl; } while (false)
 
+#define OUT_INLINE(S) do { std::cout << "\033[?25l" << "\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b" << "\033[32m" << S << "\033[39m" << "\033[?25h"; } while (false)
+
 namespace vm {
     namespace util {
         void exit_handler(void);

@@ -17,6 +17,7 @@ CXX:=clang++
 ##
 CXXFLAGS:=\
 	-Wall -Wextra \
+	-pipe \
 	-I./ \
 	-std=c++14
 

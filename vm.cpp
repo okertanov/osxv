@@ -65,12 +65,11 @@ namespace vm {
         bool cont = true;
 
         do {
-            DEBUG("Run");
             hv_return_t status = hv_vcpu_run(*_vcpu);
             VFAILED(status, "VM Runtime error: " << (((int32_t)status) & 0x000000FF));
 
             uint64_t exit_reason = ReadVmcs(VMCS_RO_EXIT_REASON) & 0xFFFF;
-            DEBUG("Running: " << exit_reason);
+            // DEBUG("Running: " << exit_reason);
 
             cont = DispatchVMExit(exit_reason);
             VCHECK(cont == true, "DispatchVMExit stopped.");
@@ -130,7 +129,7 @@ namespace vm {
 
     	WriteVmcs(VMCS_GUEST_ES, 0);
     	WriteVmcs(VMCS_GUEST_ES_LIMIT, 0xffff);
-    	WriteVmcs(VMCS_GUEST_FS_AR, 0x93);
+    	WriteVmcs(VMCS_GUEST_ES_AR, 0x93);
     	WriteVmcs(VMCS_GUEST_ES_BASE, 0);
 
     	WriteVmcs(VMCS_GUEST_FS, 0);
@@ -180,7 +179,7 @@ namespace vm {
         bool cont = true;
 
         uint64_t rip = ReadReg(HV_X86_RIP);
-        DEBUG("RIP: " << rip);
+        OUT_INLINE("RIP: " << std::dec << rip);
 
         switch (reason) {
             case VMX_REASON_IRQ: {
@@ -200,11 +199,17 @@ namespace vm {
                 DEBUG("Dispatch VM Exit: " << "TRIPLE FAULT");
                 cont = false;
             break;
+            case VMX_REASON_IO:
+                DEBUG("Dispatch VM Exit: " << "IO");
+            break;
             case VMX_REASON_VMENTRY_GUEST:
                 DEBUG("Dispatch VM Exit: " << "VMENTRY GUEST");
             break;
-            case VMX_REASON_IO:
-                DEBUG("Dispatch VM Exit: " << "IO");
+            case VMX_REASON_VMENTRY_MSR:
+                DEBUG("Dispatch VM Exit: " << "VMENTRY MSR");
+            break;
+            case VMX_REASON_VMX_TIMER_EXPIRED:
+                // DEBUG("Dispatch VM Exit: " << "TIMER EXPIRED");
             break;
             default:
                 DEBUG("Dispatch VM Exit: " << "UNKNOWN: " << reason);
